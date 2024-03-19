@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <header class="position-absolute top">
+        <div class="container-fluid my-4 ">
+            <h1 class="text-white">Lista de Imagens</h1>
+        </div>
+
+    </header>
+
+    <main class="position-relative">
+
+        <section class="bg-primary">
+            <div class="container-fluid">
+                <div class="py-4 d-flex flex-column justify-content-center vh-100">
+
+                    <h2 class="text-white">Escolha a Pasta</h2>
+                    <p class="text-white">Clique no botão para selecionar a pasta com as imagens.</p>
+                    <div class="form-group" style="max-width: 420px;">
+                        <div class="input-group mb-3">
+                            <input id="images" type="file" class="form-control" name="images" multiple>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="position-relative">
+            <div class="container-fluid py-4 my-4">
+                <div class=" d-flex flex-column align-items-center" style="min-height:30vh;">
+                    <h3>Escolha as imagens</h3>
+                    <p>Você pode escolher as imagens que deseja </p>
+
+
+                    <div class="position-absolute top-0 mt-4 pt-4">
+                        <div class="btn-group mt-4" role="group" aria-label="Basic example">
+                            <button class="btn btn-danger mt-3" id="clearSelectionBtn">Limpar Seleção</button>
+                            <button class="btn btn-primary mt-3" id="saveSelectionBtn">Salvar Seleção</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section>
+            <div class=" container-fluid py-4 my-4">
+                <div id="imagePreviewContainer" class="row gy-5">
+                    <!-- Imagens -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Certifique-se de que o elemento pai direto deste div tenha a classe 'position-relative' se não for posicionar em relação ao corpo do documento -->
+        <div id="ctrl-pressed-box" class="position-fixed bottom-0 d-none end-0 pb-3 pe-3" style="z-index: 1030;">
+            <div class="bg-black text-white p-3">
+                <h3 id="ctrl-pressed"></h3>
+            </div>
+        </div>
+
+        <div class="position-fixed  bottom-0 end-0 pb-3 pe-3" style="z-index: 1030; margin-right: 15rem; width: 75%">
+            <div id="show-click" class=" border border-3 text-white p-3 py-2">
+                <h3 class="text-black">..... click Here .....</h3>
+            </div>
+        </div>
+
+
+    </main>
+
+    <footer class="bg-white">
+        <div class="container-fluid py-4">
+            <h4 class=" text-center">Selecione as imagens que quer filtrar</h4>
+        </div>
+    </footer>
+
+    <div class="popup" id="imagePopup">
+        <span class="close" onclick="closePopup()">&times;</span>
+        <img id="popupImage" src="" alt="">
+    </div>
+
+
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <!-- Inclua a biblioteca JSZip via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <!-- Utilities -->
+    <script>
+        // Função para extrair números de uma string
+        function extractNumbers(str) {
+            return str.match(/\d+/g).map(Number);
+        }
+        // Função para comparar dois valores numéricos dentro de uma string
+        function compareStrings(a, b) {
+            var numA = extractNumbers(a);
+            var numB = extractNumbers(b);
+            for (var i = 0; i < Math.max(numA.length, numB.length); i++) {
+                if (numA[i] !== numB[i]) {
+                    return numA[i] - numB[i];
+                }
+            }
+            return 0;
+        }
+    </script>
+
+    <!-- CTRL Flag -->
+    <script>
+        /*
+        let isCTRLPressed = false; // Inicializa a variável fora dos handlers de evento
+
+        document.addEventListener('keydown', function (evt) {
+            evt = evt || window.event;
+            if (evt.keyCode == 17) { // 17 é o keyCode para a tecla CTRL
+                isCTRLPressed = !isCTRLPressed;
+                isCTRLPressed
+                    ? document.getElementById('ctrl-pressed-box').classList.remove('d-none')
+                    : document.getElementById('ctrl-pressed-box').classList.add('d-none');
+                console.log('CTRL Pressionada', isCTRLPressed);
+            }
+        });
+        */
+
+        function d(number, pad) {
+            return number.toString().padStart(pad, '0');
+        }
+    </script>
+
+    <script>
+        let isCTRLPressed = false; // Inicializa a variável fora dos handlers de evento
+
+        document.getElementById('show-click').style.backgroundColor = 'white';
+
+        document.getElementById('show-click').addEventListener('click', function (e) {
+            target = e.target
+            isCTRLPressed = !isCTRLPressed;
+            isCTRLPressed
+                ? document.getElementById('ctrl-pressed-box').classList.remove('d-none')
+                : document.getElementById('ctrl-pressed-box').classList.add('d-none');
+            console.log('CTRL Pressionada', isCTRLPressed);
+
+            if (isCTRLPressed) {
+                // Estado ativo: mudar para verde
+                this.style.backgroundColor = '#28a745'; // Verde
+                this.style.color = 'white'; // Mudar a cor do texto para branco para melhor contraste
+            } else {
+                // Estado inativo: mudar para cinza
+                this.style.backgroundColor = '#6c757d'; // Cinza
+                this.style.color = 'black'; // Mudar a cor do texto para preto para melhor contraste
+            }
+        })
+    </script>
+
+    <script>
+        function addImageToSelection(imageId, fileName, target) {
+            if (!imagesData[imageId]) {
+                imagesData[imageId] = { data: target, fileName: fileName };
+            }
+        }
+
+        function removeImageFromSelection(imageId) {
+            if (imagesData[imageId]) {
+                delete imagesData[imageId]
+            }
+        }
+    </script>
+
+    <script>
+        function saveImagesData() {
+            var zip = new JSZip();
+            Object.keys(imagesData).forEach(function (key) {
+                var item = imagesData[key];
+                var imageData = item.data.src;
+                var fileName = item.fileName;
+
+                var byteCharacters = atob(imageData.split(',')[1]);
+                var byteNumbers = new Array(byteCharacters.length);
+                for (var i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                var blob = new Blob([byteArray], { type: 'image/jpeg' });
+
+                // Adicionar a imagem ao arquivo ZIP com o nome correspondente
+                zip.file(fileName, blob);
+            })
+
+            zip.generateAsync({ type: 'blob' }).then(function (content) {
+                // Cria um link para download do arquivo ZIP
+                var link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = 'imagens_selecionadas.zip';
+                link.click();
+            }).catch(function (error) {
+                console.error('Erro ao gerar arquivo ZIP:', error);
+                alert('Erro ao gerar arquivo ZIP.');
+            });
+        }
+        document.getElementById('saveSelectionBtn').addEventListener('click', saveImagesData)
+    </script>
+
+    <!-- Seleciona A Images -->
+    <script>
+        var imagesData = {};
+        let groupCounter = 0;
+        var lastAddedImageId = null;
+        var tagName = null;
+
+        function updateCtrlPressedState(imageId) {
+            if (isCTRLPressed && lastAddedImageId !== null) {
+                document.getElementById('ctrl-pressed').innerHTML = `Active: ${d(lastAddedImageId, 3)}-${groupCounter}`;
+                groupCounter++;
+                console.log(`Active: ${d(lastAddedImageId, 3)}`);
+            } else {
+                lastAddedImageId = imageId;
+                document.getElementById('ctrl-pressed').innerHTML = `Inactive`;
+                groupCounter = 0;
+            }
+        }
+
+        function toggleCheckbox(checkbox, imageId, target) {
+            if (checkbox.checked) {
+                removeImageFromSelection(imageId);
+                checkbox.checked = false;
+            } else {
+                let fileName = isCTRLPressed
+                    ? `${d(+lastAddedImageId, 4)}-${d(groupCounter, 4)}-tem-image.png`
+                    : `${d(+imageId, 4)}-${d(groupCounter, 4)}-image.png`;
+                addImageToSelection(imageId, fileName, target);
+                checkbox.checked = true;
+            }
+        }
+
+        document.getElementById('imagePreviewContainer').addEventListener('click', function (event) {
+            var target = event.target;
+            if (target.tagName === 'IMG') {
+                var checkbox = target.parentElement.querySelector('.image-checkbox');
+                var imageId = target.id;
+
+                updateCtrlPressedState(imageId);
+                toggleCheckbox(checkbox, imageId, target);
+            }
+        });
+    </script>
+
+    <!-- Prepara O Preview -->
+    <script>
+        function previewImages() {
+            var previewContainer = document.getElementById('imagePreviewContainer');
+            var files = Array.from(document.getElementById('images').files);
+
+            previewContainer.innerHTML = '';
+
+            for (var i = 0; i < files.length; i++) {
+                (function (file, index) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        var imagePreview = document.createElement('div');
+                        imagePreview.className = 'col-md-1';
+                        imagePreview.innerHTML = `
+                            <div class="">
+                                <input type="checkbox" class="image-checkbox" data-image="${e.target.result}">
+                                <img id=${index} src="${e.target.result}" class="img-fluid image-preview">
+                            </div>
+                            <div>${file.name.match(/^(\d+-\d+-\d+)/)?.[0]}</div>
+                        `;
+                        previewContainer.appendChild(imagePreview);
+                    };
+
+                    reader.readAsDataURL(file);
+                })(files[i], i);
+            }
+        }
+
+        document.getElementById('images').addEventListener('change', previewImages);
+    </script>
+
+    <!-- Controla Popup -->
+    <script>
+        // Seleciona o popup
+        var popup = document.getElementById('imagePopup');
+        // Seleciona a imagem dentro do popup
+        var popupImage = document.getElementById('popupImage');
+
+        document.getElementById('imagePreviewContainer').addEventListener('click', function (event) {
+            // Verifica se o elemento clicado é uma imagem
+            if (event.target.tagName === 'IMG') {
+                // Cria uma nova janela com uma página HTML dedicada para exibir a imagem
+                var newWindow = window.open('', 'Imagem', 'width=500,height=500');
+                // Espera um breve momento antes de escrever o conteúdo na nova janela
+                setTimeout(function () {
+                    // Escreve o código HTML para exibir a imagem na nova janela
+                    // newWindow.document.write('<img src="' + event.target.src + '" alt="Imagem" style="max-width: 100%; height: auto;">');
+                    newWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head><title>Imagem</title></head>
+                        <body>
+                            <img src="${event.target.src}" alt="Imagem" style="max-width:100%;height:auto;">
+                        </body>
+                        </html>
+                    `);
+                    // Fecha o documento atual na nova janela para exibir apenas a imagem
+                    newWindow.document.close();
+                }, 100);
+            }
+        });
+
+        // Função para fechar o popup
+        function closePopup() {
+            popup.style.display = 'none';
+        }
+
+    </script>
+
+    <!-- Limpar seleção de imagens -->
+    <script>
+        document.getElementById('clearSelectionBtn').addEventListener('click', function () {
+            var checkboxes = document.querySelectorAll('.image-checkbox');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = false;
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>
